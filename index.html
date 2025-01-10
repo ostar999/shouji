@@ -75,11 +75,21 @@
         .addEventListener("submit", function (event) {
           event.preventDefault();
 
+          // 收集表单数据
           const formData = new FormData(this);
+          const data = {
+            name: formData.get("name"),
+            email: formData.get("email"),
+            feedback: formData.get("feedback"),
+          };
 
+          // 使用 fetch 提交 JSON 格式的数据
           fetch("https://8.134.154.214:3000/api/submit-survey", {
             method: "POST",
-            body: formData,
+            headers: {
+              "Content-Type": "application/json", // 设置请求头为 JSON
+            },
+            body: JSON.stringify(data), // 将数据转换为 JSON 字符串
           })
             .then((response) => response.json())
             .then((data) => {
