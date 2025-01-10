@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' chrome-extension://...">
     <title>调查表单</title>
     <style>
       body {
@@ -78,7 +77,7 @@
 
           const formData = new FormData(this);
 
-          fetch("http://8.134.154.214:3000/api/submit-survey", {
+          fetch("https://8.134.154.214:3000/api/submit-survey", {
             method: "POST",
             body: formData,
           })
