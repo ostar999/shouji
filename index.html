@@ -1,103 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="script-src 'self'; object-src 'none';"
+    />
     <title>调查表单</title>
     <style>
       body {
         font-family: Arial, sans-serif;
+        margin: 0;
         padding: 20px;
-        background-color: #f4f4f4;
-      }
-      h1 {
-        text-align: center;
-        color: #333;
+        background-color: #f9f9f9;
       }
       form {
         background-color: #fff;
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        max-width: 500px;
+        max-width: 400px;
         margin: 0 auto;
       }
-      .form-group {
-        margin-bottom: 20px;
-      }
       label {
-        font-size: 1.1em;
+        display: block;
+        margin-bottom: 8px;
       }
-      input[type="text"],
-      input[type="email"],
+      input,
       textarea {
         width: 100%;
-        padding: 10px;
-        margin-top: 8px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
+        padding: 8px;
+        margin-bottom: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
       button {
-        background-color: #28a745;
-        color: white;
+        background-color: #007bff;
+        color: #fff;
         padding: 10px 20px;
         border: none;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 1.1em;
       }
       button:hover {
-        background-color: #218838;
+        background-color: #0056b3;
       }
     </style>
   </head>
   <body>
-    <h1>调查问卷</h1>
-    <form id="survey-form">
-      <div class="form-group">
-        <label for="name">姓名</label>
-        <input type="text" id="name" name="name" required />
-      </div>
-      <div class="form-group">
-        <label for="email">邮箱</label>
-        <input type="email" id="email" name="email" required />
-      </div>
-      <div class="form-group">
-        <label for="feedback">反馈意见</label>
-        <textarea id="feedback" name="feedback" rows="4" required></textarea>
-      </div>
+    <h1>欢迎参与调查</h1>
+    <form id="surveyForm">
+      <label for="name">姓名:</label>
+      <input type="text" id="name" name="name" required /><br />
+
+      <label for="email">邮箱:</label>
+      <input type="email" id="email" name="email" required /><br />
+
+      <label for="feedback">反馈:</label>
+      <textarea id="feedback" name="feedback" required></textarea><br />
+
       <button type="submit">提交</button>
     </form>
 
     <script>
       document
-        .getElementById("survey-form")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
+        .getElementById("surveyForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault(); // 防止表单默认提交行为
 
-          // 收集表单数据
-          const formData = new FormData(this);
-          const data = {
-            name: formData.get("name"),
-            email: formData.get("email"),
-            feedback: formData.get("feedback"),
-          };
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const feedback = document.getElementById("feedback").value.trim();
 
-          // 使用 fetch 提交 JSON 格式的数据
-          fetch("https://8.134.154.214:3000/api/submit-survey", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json", // 设置请求头为 JSON
-            },
-            body: JSON.stringify(data), // 将数据转换为 JSON 字符串
-          })
-            .then((response) => response.json())
-            .then((data) => {
+          // 基本表单验证
+          if (!name || !email || !feedback) {
+            alert("请填写所有字段！");
+            return;
+          }
+
+          try {
+            // 发送请求
+            const response = await fetch(
+              "http://8.134.154.214:3000/api/submit-survey",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json", // 发送 JSON 数据
+                },
+                body: JSON.stringify({ name, email, feedback }), // 将表单数据转换成 JSON 格式
+              }
+            );
+
+            // 处理响应
+            if (!response.ok) {
+              throw new Error("网络错误，无法提交表单。");
+            }
+
+            const result = await response.json();
+            if (result.message) {
+              alert(result.message); // 显示后台返回的消息
+            } else {
               alert("提交成功！");
-            })
-            .catch((error) => {
-              alert("提交失败，请重试。");
-            });
+            }
+          } catch (error) {
+            console.error("错误:", error);
+            alert("提交失败，请重试。");
+          }
         });
     </script>
   </body>
