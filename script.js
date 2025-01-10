@@ -16,7 +16,7 @@ document
     try {
       // 发送请求
       const response = await fetch(
-        "http://8.134.154.214:3000/api/submit-survey",
+        "https://8.134.154.214:3000/api/submit-survey",
         {
           method: "POST",
           headers: {
