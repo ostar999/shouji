@@ -1,41 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>收集姓名和年龄</title>
-</head>
-<body>
-    <h1>填写信息</h1>
-    <form id="info-form">
-        <label for="name">姓名:</label>
-        <input type="text" id="name" name="name" required><br><br>
-        <label for="age">年龄:</label>
-        <input type="number" id="age" name="age" required><br><br>
-        <button type="submit">提交</button>
-    </form>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学生管理系统</title>
+    <style>
+      /* 页面背景和字体 */
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f7fc;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        text-align: center;
+        color: #4caf50;
+        padding-top: 30px;
+      }
+
+      h2 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 24px;
+      }
+
+      /* 页面容器 */
+      section {
+        background-color: #fff;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* 标签样式 */
+      label {
+        display: block;
+        margin: 10px 0 5px;
+        color: #555;
+      }
+
+      /* 输入框样式 */
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+
+      /* 按钮样式 */
+      button {
+        width: 100%;
+        padding: 12px;
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      /* 提示消息样式 */
+      p {
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 15px;
+      }
+
+      .success {
+        color: green;
+      }
+
+      .error {
+        color: red;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>学生管理系统</h1>
+
+    <!-- 录入学生信息 -->
+    <section>
+      <h2>录入学生信息</h2>
+      <label for="student-id">学号:</label>
+      <input type="text" id="student-id" required />
+      <label for="student-name">姓名:</label>
+      <input type="text" id="student-name" required />
+      <button onclick="addStudent()">提交</button>
+      <p id="add-result"></p>
+    </section>
+
+    <hr />
+
+    <!-- 查询学生姓名 -->
+    <section>
+      <h2>查询学生姓名</h2>
+      <label for="query-id">学号:</label>
+      <input type="text" id="query-id" required />
+      <button onclick="getStudentName()">查询</button>
+      <p id="query-result"></p>
+    </section>
 
     <script>
-        document.getElementById('info-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-            
-            fetch('https://8.134.154.214:3001/submit', { // 服务器地址
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name: name, age: age })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('提交成功');
-            })
-            .catch(error => {
-                alert('提交失败');
-            });
+      // 录入学生信息
+      async function addStudent() {
+        const studentId = document.getElementById("student-id").value;
+        const studentName = document.getElementById("student-name").value;
+
+        const response = await fetch("https://8.134.154.214:3000/api/student", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ student_id: studentId, name: studentName }),
         });
+
+        const data = await response.json();
+        const resultElement = document.getElementById("add-result");
+        if (response.ok) {
+          resultElement.textContent = `录入成功：学号 ${studentId}, 姓名 ${studentName}`;
+          resultElement.classList.add("success");
+          resultElement.classList.remove("error");
+        } else {
+          resultElement.textContent = `录入失败：${data.error || data.message}`;
+          resultElement.classList.add("error");
+          resultElement.classList.remove("success");
+        }
+      }
+
+      // 查询学生姓名
+      async function getStudentName() {
+        const studentId = document.getElementById("query-id").value;
+
+        const response = await fetch(
+          `http://localhost:3000/api/student/${studentId}`
+        );
+
+        const resultElement = document.getElementById("query-result");
+        if (response.ok) {
+          const data = await response.json();
+          resultElement.textContent = `查询成功：学生姓名是 ${data.name}`;
+          resultElement.classList.add("success");
+          resultElement.classList.remove("error");
+        } else {
+          const errorData = await response.json();
+          resultElement.textContent = `查询失败：${errorData.message}`;
+          resultElement.classList.add("error");
+          resultElement.classList.remove("success");
+        }
+      }
     </script>
-</body>
+  </body>
 </html>
